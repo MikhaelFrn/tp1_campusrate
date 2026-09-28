@@ -9,14 +9,14 @@ export class PlacesController {
   constructor(private readonly placesService: PlacesService) {}
 
   @Post()
-  @HttpCode(201)
   async create(@Body() createPlaceDto: CreatePlaceDto, @Res() res: Response) {
     const place = await this.placesService.create(createPlaceDto);
     res.setHeader('Location', `/v1/places/${place.id}`);
-    res.status(HttpStatus.CREATED).json(place);
+    res.status(201).json(place);
   }
 
   @Get()
+  @HttpCode(200)
   findAll(
     @Query('category') category?: string,
     @Query('status') status?: string,
@@ -27,11 +27,13 @@ export class PlacesController {
   }
 
   @Get(':id')
+  @HttpCode(200)
   findOne(@Param('id') id: string) {
     return this.placesService.findOne(id);
   }
 
   @Patch(':id')
+  @HttpCode(200)
   update(@Param('id') id: string, @Body() updatePlaceDto: UpdatePlaceDto) {
     return this.placesService.update(id, updatePlaceDto);
   }
