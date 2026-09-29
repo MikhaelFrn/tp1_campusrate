@@ -1,0 +1,18 @@
+{
+  "places": [
+    {
+      "id": "5022cf20-01ff-4cf4-ab9e-2caedf690655",
+      "name": "Cafeteria",
+      "description": "Main cafeteria on campus.",
+      "category": "CAFETERIA",
+      "address": "7000 Marie-Victorin",
+      "services": [],
+      "status": "ACTIVE",
+      "averageRating": 4.5,
+      "reviewCount": 1,
+      "createdAt": "2026-09-29T00:03:33.628Z",
+      "updatedAt": "2026-09-29T00:09:09.036Z"
+    }
+  ],
+  "reviews": []
+}
