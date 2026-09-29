@@ -4,6 +4,7 @@ import { VersioningType } from '@nestjs/common';
 import { configureSwagger } from './configure-swagger.js';
 import { ValidationPipe } from '@nestjs/common';
 import "dotenv/config";
+import { ProblemDetailsFilter } from './filters/problem-details.filter.js';
 
 
 async function bootstrap() {
@@ -22,6 +23,7 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+  app.useGlobalFilters(new ProblemDetailsFilter());
   await app.listen(process.env.PORT ?? 3000);
 }
 await bootstrap();
