@@ -4,7 +4,7 @@ import { VersioningType } from '@nestjs/common';
 import { configureSwagger } from './configure-swagger.js';
 import { ValidationPipe } from '@nestjs/common';
 import "dotenv/config";
-import { ProblemDetailsFilter } from './filters/problem-details.filter.js';
+import { ProblemDetailsFilter } from './common/filters/problem-details.filter.js';
 
 
 async function bootstrap() {
