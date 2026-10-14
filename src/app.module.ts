@@ -4,9 +4,12 @@ import { AppService } from './app.service.js';
 import { PlacesModule } from './places/places.module.js';
 import { ReviewsModule } from './reviews/reviews.module.js';
 import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration.js';
 
 @Module({
-  imports: [PlacesModule, ReviewsModule, ConfigModule.forRoot()],
+  imports: [PlacesModule, ReviewsModule, ConfigModule.forRoot({
+    load: [configuration]
+  })],
   controllers: [AppController],
   providers: [AppService],
 })
