@@ -8,7 +8,7 @@ export class PlaceResponseDto {
 
     @ApiProperty({
         description: 'Place ID',
-        example: '123e4567-e89b-12d3-a456-426614174000',
+        example: '6ad07bb40ae4c8652251d4c5',
     })
     id: string;
 

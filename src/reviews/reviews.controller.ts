@@ -16,9 +16,9 @@ export class ReviewsController {
   })
   @ApiParam({
     name: 'id',
-    description: 'the review uuid',
+    description: 'the review ObjectId',
     type: 'string',
-    format: 'uuid'
+    format: 'ObjectId'
   })
   @ApiNotFoundResponse({
     description: 'Review not found.'
@@ -31,9 +31,9 @@ export class ReviewsController {
   @HttpCode(200)
   @ApiParam({
     name: 'id',
-    description: 'the review uuid',
+    description: 'the review ObjectId',
     type: 'string',
-    format: 'uuid'
+    format: 'ObjectId'
   })
   @ApiOkResponse({
     description: 'Review updated.',
@@ -53,9 +53,9 @@ export class ReviewsController {
   @HttpCode(204)
   @ApiParam({
     name: 'id',
-    description: 'the review uuid',
+    description: 'the review ObjectId',
     type: 'string',
-    format: 'uuid'
+    format: 'ObjectId'
   })
   @ApiNoContentResponse({
     description: 'Review deleted.'
