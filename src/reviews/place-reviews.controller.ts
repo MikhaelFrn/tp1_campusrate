@@ -3,6 +3,7 @@ import { ReviewsService } from './reviews.service.js';
 import { CreateReviewDto } from './dto/create-review.dto.js';
 import { ReviewResponseDto, UpdateReviewDto } from './dto/update-review.dto.js';
 import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { PaginationDto } from '../dto/pagination.dto.js';
 
 @ApiTags('Reviews')
 @Controller({ path: 'places/:placeId/reviews', version: '1' })
@@ -84,9 +85,8 @@ export class PlaceReviewsController {
   })
   async findAll(
     @Param('placeId') placeId: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
+    @Query() PaginationDto: PaginationDto,
   ) {
-    return this.reviewsService.findAllForPlace(placeId, page ? +page : undefined, limit ? +limit : undefined);
+    return this.reviewsService.findAllForPlace(placeId, PaginationDto.page, PaginationDto.limit);
   }
 }
