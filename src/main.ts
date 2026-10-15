@@ -11,6 +11,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   configureSwagger(app);
   app.setGlobalPrefix('api');
+  app.useGlobalFilters(new ProblemDetailsFilter());
+  app.enableVersioning({
+    type: VersioningType.URI,
+    prefix: 'v',
+    defaultVersion: '1',
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -23,7 +29,6 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: '1',
   });
-  app.useGlobalFilters(new ProblemDetailsFilter());
   await app.listen(process.env.PORT ?? 3000);
 }
 await bootstrap();

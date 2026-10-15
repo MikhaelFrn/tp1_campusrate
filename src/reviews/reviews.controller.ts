@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, Query, HttpCode } from '@nestjs/common';
 import { ReviewsService } from './reviews.service.js';
 import { ReviewResponseDto, UpdateReviewDto } from './dto/update-review.dto.js';
-import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Reviews')
 @Controller({ path: 'reviews', version: '1' })
