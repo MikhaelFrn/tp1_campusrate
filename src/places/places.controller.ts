@@ -84,7 +84,7 @@ export class PlacesController {
   @ApiBadRequestResponse({
     description: 'Invalid category, status, page, or limit value.'
   })
-  findAll(
+  async findAll(
     @Query('category') category?: string,
     @Query('status') status?: string,
     @Query('page') page?: string,    
@@ -108,7 +108,7 @@ export class PlacesController {
   @ApiNotFoundResponse({
      description: 'Place not found.' 
   })
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.placesService.findOne(id);
   }
 
@@ -130,7 +130,7 @@ export class PlacesController {
   @ApiBadRequestResponse({
     description: 'Invalid place data'
   })
-  update(@Param('id') id: string, @Body() updatePlaceDto: UpdatePlaceDto) {
+  async update(@Param('id') id: string, @Body() updatePlaceDto: UpdatePlaceDto) {
     return this.placesService.update(id, updatePlaceDto);
   }
 
@@ -151,7 +151,7 @@ export class PlacesController {
   @ApiConflictResponse({
     description: 'Place has existing reviews and cannot be deleted.'
   })
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.placesService.remove(id);
   }
 }
