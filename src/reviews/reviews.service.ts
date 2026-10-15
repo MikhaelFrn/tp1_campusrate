@@ -1,121 +1,100 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto.js';
 import { UpdateReviewDto } from './dto/update-review.dto.js';
-import { DataStorageService } from '../data/data-storage.service.js';
-import { Review } from './entities/review.entity.js';
-import { Place } from '../places/entities/place.entity.js';
+import { Review } from './schema/review.schema.js';
+import { Place } from '../places/schema/place.schema.js'; // Ajuste le chemin vers ton schéma Place
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
 
 @Injectable()
 export class ReviewsService {
-  constructor(private readonly dataStorageService: DataStorageService) {}
+  constructor(
+    @InjectModel(Review.name) private readonly reviewModel: Model<Review>,
+    @InjectModel(Place.name) private readonly placeModel: Model<Place>
+  ) {}
 
   async create(placeId: string, createReviewDto: CreateReviewDto): Promise<Review> {
-    createReviewDto.comment = createReviewDto.comment.trim();
-
-    const places = await this.dataStorageService.readData('places') as Place[];
-    const place = places.find(p => p.id === placeId);
-
-    if (place === undefined) {
-      throw new NotFoundException(`Place with id ${placeId} not found`);
-    }
-
-    const reviewCreated = new Review(placeId, createReviewDto.rating, createReviewDto.comment);
-    const reviews = await this.dataStorageService.readData('reviews') as Review[];
-    reviews.push(reviewCreated);
+    const review = await this.reviewModel.create({
+      ...createReviewDto,
+      placeId: new Types.ObjectId(placeId),
+    });
     
-    await this.dataStorageService.writeData('reviews', reviews);
     await this.recalculatePlaceStats(placeId);
-    return reviewCreated;
+    return review;
   }
 
   async findAllForPlace(placeId: string, page = 1, limit = 10): Promise<{ data: Review[]; pagination: { page: number; limit: number; totalItems: number; totalPages: number } }> {
-    const MAX_LIMIT = 20;
+    const skip = (page - 1) * limit;
+    const filter = { placeId: new Types.ObjectId(placeId) };
 
-    if (!Number.isInteger(page) || page < 1) {
-      throw new BadRequestException('page must be a positive integer');
-    }
-    if (!Number.isInteger(limit) || limit < 1) {
-      throw new BadRequestException('Invalid limit value');
-    }
-    if (limit > MAX_LIMIT) {
-      throw new BadRequestException(`limit can't be bigger than ${MAX_LIMIT}`);
-    }
+    const [data, totalItems] = await Promise.all([
+      this.reviewModel.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }).exec(),
+      this.reviewModel.countDocuments(filter).exec(),
+    ]);
 
-    const places = await this.dataStorageService.readData('places') as Place[];
-    const place = places.find(p => p.id === placeId);
-    if (place === undefined) {
-      throw new NotFoundException(`Place with id ${placeId} not found`);
-    }
-
-    let reviews = await this.dataStorageService.readData('reviews') as Review[];
-    reviews = reviews.filter(review => review.placeId === placeId);
-
-    const totalItems = reviews.length;
-    const totalPages = Math.ceil(totalItems / limit);
-    const start = (page - 1) * limit;
-    const paginatedReviews = reviews.slice(start, start + limit);
+    const totalPages = Math.ceil(totalItems / limit) || 1;
 
     return {
-      data: paginatedReviews,
-      pagination: { page, limit, totalItems, totalPages },
+      data,
+      pagination: {
+        page,
+        limit,
+        totalItems,
+        totalPages,
+      },
     };
   }
 
   async findOne(id: string): Promise<Review> {
-    const reviews = await this.dataStorageService.readData('reviews') as Review[];
-    const reviewFound = reviews.find(review => review.id === id);
-    if (reviewFound === undefined) {
+    const review = await this.reviewModel.findById(id).exec();
+    if (!review) {
       throw new NotFoundException(`Review with id ${id} not found`);
     }
-    return reviewFound;
+    return review;
   }
 
   async update(id: string, updateReviewDto: UpdateReviewDto): Promise<Review> {
-    const reviews = await this.dataStorageService.readData('reviews') as Review[];
-    for (let i = 0; i < reviews.length; i++) {
-      if (reviews[i].id === id) {
-        reviews[i] = { ...reviews[i], ...updateReviewDto, updatedAt: new Date() } as Review;
-        await this.dataStorageService.writeData('reviews', reviews);
-        await this.recalculatePlaceStats(reviews[i].placeId);
-        return reviews[i];
-      }
+    const review = await this.reviewModel.findByIdAndUpdate(
+      { _id: id},
+      { $set: updateReviewDto },
+      { new: true, runValidators: true },
+    ).exec();
+    
+    if (!review) {
+      throw new NotFoundException(`Review with id ${id} not found`);
     }
-    throw new NotFoundException(`Review with id ${id} not found`);
+    await this.recalculatePlaceStats(review.placeId.toString());
+    return review;
   }
 
   async remove(id: string): Promise<void> {
-    const reviews = await this.dataStorageService.readData('reviews') as Review[];
-    for (let i = 0; i < reviews.length; i++) {
-      if (reviews[i].id === id) {
-        const placeId = reviews[i].placeId;
-        reviews.splice(i, 1);
-        await this.dataStorageService.writeData('reviews', reviews);
-        await this.recalculatePlaceStats(placeId);
-        return;
-      }
+    const review = await this.reviewModel.findByIdAndDelete(id).exec();
+    if (!review) {
+      throw new NotFoundException(`Review with id ${id} not found`);
     }
-    throw new NotFoundException(`Review with id ${id} not found`);
+    await this.recalculatePlaceStats(review.placeId.toString());
   }
 
   private async recalculatePlaceStats(placeId: string): Promise<void> {
-    const places = await this.dataStorageService.readData('places') as Place[];
-    const placeIndex = places.findIndex(p => p.id === placeId);
-    if (placeIndex === -1) {
-      return;
-    }
+    const placeObjectId = new Types.ObjectId(placeId);
 
-    const reviews = await this.dataStorageService.readData('reviews') as Review[];
-    const placeReviews = reviews.filter(review => review.placeId === placeId);
+    const stats = await this.reviewModel.aggregate([
+      { $match: { placeId: placeObjectId } },
+      {
+        $group: {
+          _id: '$placeId',
+          averageRating: { $avg: '$rating' },
+          reviewCount: { $sum: 1 },
+        },
+      },
+    ]);
 
-    const reviewCount = placeReviews.length;
-    const averageRating = reviewCount === 0
-      ? null
-      : placeReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount;
+    const reviewCount = stats.length > 0 ? stats[0].reviewCount : 0;
+    const averageRating = reviewCount === 0 ? null : Number(stats[0].averageRating.toFixed(2)); // Arrondi optionnel à 2 décimales
 
-    places[placeIndex].averageRating = averageRating;
-    places[placeIndex].reviewCount = reviewCount;
-    places[placeIndex].updatedAt = new Date();
-
-    await this.dataStorageService.writeData('places', places);
+    await this.placeModel.findByIdAndUpdate(placeObjectId, {
+      averageRating,
+      reviewCount,
+    }).exec();
   }
 }
