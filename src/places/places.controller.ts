@@ -4,6 +4,7 @@ import { CreatePlaceDto } from './dto/create-place.dto.js';
 import { PlaceResponseDto, UpdatePlaceDto } from './dto/update-place.dto.js';
 import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
+import { PaginationDto } from '../common/dto/pagination.dto.js';
 
 @ApiTags('Places')
 @Controller({path: 'places', version: '1'})
@@ -83,12 +84,11 @@ export class PlacesController {
     description: 'Invalid category, status, page, or limit value.'
   })
   async findAll(
+    @Query() paginationDto: PaginationDto,
     @Query('category') category?: string,
     @Query('status') status?: string,
-    @Query('page') page?: string,    
-    @Query('limit') limit?: string
   ) {
-    return this.placesService.findAll(category, status, page ? +page : undefined, limit ? +limit : undefined);
+    return this.placesService.findAll(category, status, paginationDto.page, paginationDto.limit,);
   }
 
   @Get(':id')
