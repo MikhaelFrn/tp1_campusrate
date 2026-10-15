@@ -13,12 +13,14 @@ Le projet est encore en développement actif.
 - Node.js;
 - TypeScript;
 - NestJS;
+- MongoDB
 - Eslint
 
 ## Prérequis
 - Une version de Node compatible avec le ```package.json```;
 - npm
 - git
+- MongoDB
 
 Vérifier que l'environnement est prêt avec ces commandes
 ```
@@ -40,7 +42,7 @@ Pour exécuter le projet, s'assurer que les variables d'environnement sont confi
 
 Variables requises :
 - PORT
-- DATA_FILE_PATH (chemin du fichier json dans lequel les données sont lues et écrites)
+- MONGO_URI (url de connection de la base de donnée MongoDB utilisée)
 
 ### NE PAS pousser son propre fichier .env vers le dépôt, ces fichiers sont privés, suivre le .env.example et ne pas pousser le fichier .env réel
 
@@ -110,4 +112,4 @@ http://localhost:3000/api/docs
 ```
 
 ## Persistance des données
-Le projet stocke présentement les données dans un fichier json dédié, mais ceci changera éventuellement pour une base de données dédiée.
+Le projet stocke les données de façon persistante dans une base de données mongoDB. 
