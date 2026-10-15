@@ -31,7 +31,7 @@ export class PlaceReviewsController {
   @ApiNotFoundResponse({
     description: 'Place not found.'
   })
-  create(@Param('placeId') placeId: string, @Body() createReviewDto: CreateReviewDto) {
+  async create(@Param('placeId') placeId: string, @Body() createReviewDto: CreateReviewDto) {
     return this.reviewsService.create(placeId, createReviewDto);
   }
 
@@ -82,7 +82,7 @@ export class PlaceReviewsController {
   @ApiNotFoundResponse({
     description: 'Place not found.'
   })
-  findAll(
+  async findAll(
     @Param('placeId') placeId: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
