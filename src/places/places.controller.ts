@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, Res } from '@nestjs/common';
 import { PlacesService } from './places.service.js';
 import { CreatePlaceDto } from './dto/create-place.dto.js';
 import { PlaceResponseDto, UpdatePlaceDto } from './dto/update-place.dto.js';
@@ -28,10 +28,8 @@ export class PlacesController {
   @ApiBadRequestResponse ({
     description: 'Invalid place data.'
   })
-  async create(@Body() createPlaceDto: CreatePlaceDto, @Res() res: Response) {
-    const place = await this.placesService.create(createPlaceDto);
-    res.setHeader('Location', `/v1/places/${place.id}`);
-    res.status(201).json(place);
+  async create(@Body() createPlaceDto: CreatePlaceDto) {
+    return this.placesService.create(createPlaceDto);
   }
 
   @Get()
@@ -84,11 +82,11 @@ export class PlacesController {
   @ApiBadRequestResponse({
     description: 'Invalid category, status, page, or limit value.'
   })
-  findAll(
+  async findAll(
     @Query('category') category?: string,
     @Query('status') status?: string,
     @Query('page') page?: string,    
-    @Query('limit') limit?: string    
+    @Query('limit') limit?: string
   ) {
     return this.placesService.findAll(category, status, page ? +page : undefined, limit ? +limit : undefined);
   }
@@ -108,8 +106,8 @@ export class PlacesController {
   @ApiNotFoundResponse({
      description: 'Place not found.' 
   })
-  findOne(@Param('id') id: string) {
-    return this.placesService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    return this.placesService.findById(id);
   }
 
   @Patch(':id')
@@ -130,7 +128,7 @@ export class PlacesController {
   @ApiBadRequestResponse({
     description: 'Invalid place data'
   })
-  update(@Param('id') id: string, @Body() updatePlaceDto: UpdatePlaceDto) {
+  async update(@Param('id') id: string, @Body() updatePlaceDto: UpdatePlaceDto) {
     return this.placesService.update(id, updatePlaceDto);
   }
 
@@ -151,7 +149,7 @@ export class PlacesController {
   @ApiConflictResponse({
     description: 'Place has existing reviews and cannot be deleted.'
   })
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.placesService.remove(id);
   }
 }
