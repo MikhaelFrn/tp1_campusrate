@@ -23,7 +23,7 @@ export class ReviewsController {
   @ApiNotFoundResponse({
     description: 'Review not found.'
   })
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.reviewsService.findOne(id);
   }
 
@@ -45,7 +45,7 @@ export class ReviewsController {
   @ApiBadRequestResponse({
     description: 'Invalid review data'
   })
-  update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
+  async update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
     return this.reviewsService.update(id, updateReviewDto);
   }
 
@@ -63,7 +63,7 @@ export class ReviewsController {
   @ApiNotFoundResponse({
     description: 'Review not found.'
   })
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.reviewsService.remove(id);
   }
 }
