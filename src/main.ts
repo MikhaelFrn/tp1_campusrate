@@ -5,7 +5,7 @@ import { configureSwagger } from './configure-swagger.js';
 import { ValidationPipe } from '@nestjs/common';
 import "dotenv/config";
 import { ProblemDetailsFilter } from './common/filters/problem-details.filter.js';
-
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,9 +25,12 @@ async function bootstrap() {
       stopAtFirstError: false,
     }),
   );
-  app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: '1',
+  app.use(helmet());
+  app.useSecurityHeaders();
+  app.enableCors({
+    origin: ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:4200', 'http://localhost:8080'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
   await app.listen(process.env.PORT ?? 3000);
 }
