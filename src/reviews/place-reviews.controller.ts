@@ -3,7 +3,7 @@ import { ReviewsService } from './reviews.service.js';
 import { CreateReviewDto } from './dto/create-review.dto.js';
 import { ReviewResponseDto, UpdateReviewDto } from './dto/update-review.dto.js';
 import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { PaginationDto } from '../dto/pagination.dto.js';
+import { PaginationDto } from '../common/dto/pagination.dto.js';
 
 @ApiTags('Reviews')
 @Controller({ path: 'places/:placeId/reviews', version: '1' })

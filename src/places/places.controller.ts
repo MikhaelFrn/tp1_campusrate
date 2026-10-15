@@ -4,7 +4,7 @@ import { CreatePlaceDto } from './dto/create-place.dto.js';
 import { PlaceResponseDto, UpdatePlaceDto } from './dto/update-place.dto.js';
 import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
-import { PaginationDto } from '../dto/pagination.dto.js';
+import { PaginationDto } from '../common/dto/pagination.dto.js';
 
 @ApiTags('Places')
 @Controller({path: 'places', version: '1'})
