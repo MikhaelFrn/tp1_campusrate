@@ -3,61 +3,58 @@ import {
   Catch,
   ExceptionFilter,
   HttpException,
-  HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 
-type NestErrorBody = {
+type HttpErrorBody = {
   message?: string | string[];
   error?: string;
 };
 
-@Catch()
+@Catch(HttpException)
 export class ProblemDetailsFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost): void {
+  private readonly logger = new Logger(ProblemDetailsFilter.name); 
+
+  catch(exception: HttpException, host: ArgumentsHost): void {
     const context = host.switchToHttp();
     const request = context.getRequest<Request>();
     const response = context.getResponse<Response>();
 
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+    const statusCode = exception.getStatus();
 
-    const exceptionResponse =
-      exception instanceof HttpException
-        ? exception.getResponse()
-        : undefined;
+    const exceptionResponse = exception.getResponse();
 
-    const body: NestErrorBody =
-      typeof exceptionResponse === 'object' &&
-      exceptionResponse !== null
-        ? (exceptionResponse as NestErrorBody)
-        : {};
+    let message: string | string[] = exception.message;
+    let error = exception.name;
 
-    const messages = Array.isArray(body.message)
-      ? body.message
-      : body.message
-        ? [body.message]
-        : [];
+    const title = this.getTitle(statusCode);
+    if (typeof exceptionResponse === 'string') {
+      message = exceptionResponse;
+    } else {
+      const body = exceptionResponse as HttpErrorBody;
+      message = body.message ?? message;
+      error = body.error ?? error;
+    }
 
-    const title = this.getTitle(status);
+    if (statusCode >= 500) {
+      this.logger.error(
+        `[${request.method}] ${request.originalUrl} - Status: ${statusCode} - Message: ${JSON.stringify(message)}`,
+      );
+    } else {
+      this.logger.warn(
+        `[${request.method}] ${request.originalUrl} - Status: ${statusCode} - Message: ${JSON.stringify(message)}`,
+      );
+    }
 
-    response
-      .status(status)
-      .type('application/problem+json')
-      .json({
-        type: `http://localhost:${process.env.PORT ?? 3000}/problems/${this.getType(status)}`,
-        title,
-        status,
-        detail:
-          messages[0] ??
-          (status === HttpStatus.INTERNAL_SERVER_ERROR
-            ? 'An unexpected error occured'
-            : title),
-        instance: request.originalUrl,
-        ...(messages.length > 1 ? { errors: messages } : {}),
-      });
+    response.status(statusCode).json({
+      statusCode,
+      error,
+      type: this.getType(statusCode),
+      message,
+      timestamp: new Date().toISOString(),
+      path: request.originalUrl,
+    });
   }
 
   private getType(status: number): string {
@@ -65,7 +62,8 @@ export class ProblemDetailsFilter implements ExceptionFilter {
       400: 'validation-error',
       404: 'not-found',
       409: 'conflict',
-      415: 'unsupported-media-type',
+      413: 'payload-too-large',
+      415: 'unsuported-media-type',
       500: 'internal-error',
     };
 
@@ -77,6 +75,7 @@ export class ProblemDetailsFilter implements ExceptionFilter {
       400: 'Invalid data',
       404: 'Resource not found',
       409: 'Conflict',
+      413: 'Payload too large',
       415: 'Unsuported media type',
       500: 'Internal error',
     };
