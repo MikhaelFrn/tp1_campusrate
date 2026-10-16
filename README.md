@@ -31,6 +31,9 @@ git --version
 ## Installation du projet
 Cloner le dépôt :
 ```
+cp .env.example .env //mettre les informations requises dans le .env
+```
+```
 git clone <repository_url>
 ```
 Installer les dépendances :
@@ -43,6 +46,8 @@ Pour exécuter le projet, s'assurer que les variables d'environnement sont confi
 Variables requises :
 - PORT
 - MONGO_URI (url de connection de la base de donnée MongoDB utilisée)
+
+Configuration MongoDB
 
 ### NE PAS pousser son propre fichier .env vers le dépôt, ces fichiers sont privés, suivre le .env.example et ne pas pousser le fichier .env réel
 
@@ -69,6 +74,15 @@ npm run test
 
 ## API
 CampusRate expose deux ressources — places et reviews — sous un chemin de base versionné : toutes les routes débutent par ```/api/v1/```, sauf la documentation swagger.
+
+## Validations principales
+Le projet applique des règles de validation strictes via un `ValidationPipe` global et `class-validator` :
+- **Blanchiment (`whitelist`)** : Suppression automatique de toute propriété non déclarée dans les DTOs.
+- **Sécurité stricte (`forbidNonWhitelisted`)** : Rejet de la requête (erreur `400`) si des propriétés non autorisées sont envoyées.
+- **Contraintes spécifiques** : 
+  - Les noms, descriptions et adresses ont des limites de caractères strictes (`@MaxLength`).
+  - Les notes (`rating`) pour les reviews doivent obligatoirement être comprises entre 1 et 5 (`@Min`, `@Max`).
+  - Les champs obligatoires et enums (`category`, `status`) sont rigoureusement validés.
 
 ### Places
 
@@ -113,3 +127,8 @@ http://localhost:3000/api/docs
 
 ## Persistance des données
 Le projet stocke les données de façon persistante dans une base de données mongoDB. 
+
+## Limitations connues
+- L'API ne gère pas l'authentification des utilisateurs ni le système de rôles (RBAC) pour le moment, les opérations d'écriture sont donc publiques.
+- La pagination des ressources est plafonnée à un nombre maximal d'éléments par page pour des raisons de performance.
+- Aucun mécanisme de rafraîchissement des jetons (*refresh tokens*) n'est implémenté.
