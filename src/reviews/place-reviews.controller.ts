@@ -18,9 +18,9 @@ export class PlaceReviewsController {
   })
   @ApiParam({
     name: 'placeId',
-    description: 'the place uuid',
+    description: 'the place ObjectId',
     type: 'string',
-    format: 'uuid'
+    format: 'ObjectId'
   })
   @ApiCreatedResponse({
     description: 'Review created.',
@@ -44,9 +44,9 @@ export class PlaceReviewsController {
   })
   @ApiParam({
     name: 'placeId',
-    description: 'the place uuid',
+    description: 'the place ObjectId',
     type: 'string',
-    format: 'uuid'
+    format: 'ObjectId'
   })
   @ApiQuery({
     name: 'page',

@@ -15,7 +15,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
       })
       detail!: string;
 
-      @ApiProperty({ example: '/api/v1/places/123e4567-e89b-12d3-a456-426614174000' })
+      @ApiProperty({ example: '/api/v1/places/6ad07bb40ae4c8652251d4c5' })
       instance!: string;
 
       @ApiPropertyOptional({

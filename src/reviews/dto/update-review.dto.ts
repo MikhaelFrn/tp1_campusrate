@@ -6,13 +6,13 @@ export class ReviewResponseDto {
 
     @ApiProperty({
         description: 'Review ID',
-        example: '123e4567-e89b-12d3-a456-426614174000',
+        example: '3n413gy72gj8e900472td6h2',
     })
     id: string;
 
     @ApiProperty({
         description: 'ID of the place this review is about',
-        example: '789e4567-e89b-12d3-a456-426614174999',
+        example: '6ad07bb40ae4c8652251d4c5',
     })
     placeId: string;
 

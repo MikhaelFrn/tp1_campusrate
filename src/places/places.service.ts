@@ -1,16 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { CreatePlaceDto } from './dto/create-place.dto.js';
 import { UpdatePlaceDto } from './dto/update-place.dto.js';
 import { Place } from './schema/place.schema.js';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class PlacesService {
   constructor(@InjectModel(Place.name) private readonly placeModel: Model<Place>) {}
 
   async create(createPlaceDto: CreatePlaceDto): Promise<Place> {
-    return this.placeModel.create(createPlaceDto);
+    try {
+      const createdPlace = await this.placeModel.create(createPlaceDto);
+      return createdPlace;
+    } catch (error) {
+      const err = error as { code?: number };
+      if (err.code === 11000) {
+        throw new ConflictException(`A place with this name already exists.`);
+      }
+      throw error;
+    }
   }
 
   async findAll(category?: string, status?: string, page = 1, limit = 10): Promise<{ data: Place[]; pagination: { page: number; limit: number; totalItems: number; totalPages: number } }> {
@@ -47,7 +56,8 @@ export class PlacesService {
   }
 
   async update(id: string, updatePlaceDto: UpdatePlaceDto): Promise<Place> {
-    const place = await this.placeModel.findByIdAndUpdate(
+    try {
+          const place = await this.placeModel.findByIdAndUpdate(
       {_id: id},
       { $set: updatePlaceDto },
       { new: true,
@@ -58,6 +68,13 @@ export class PlacesService {
       throw new NotFoundException(`Place with id ${id} not found`);
     }
     return place;
+    } catch (error) {
+      const err = error as { code?: number };
+      if (err.code === 11000) {
+        throw new ConflictException(`A place with this name already exists.`);
+      }
+      throw error;
+    }
   }
 
   async remove(id: string) {

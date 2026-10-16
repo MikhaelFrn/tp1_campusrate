@@ -98,9 +98,9 @@ export class PlacesController {
   })
   @ApiParam({
     name: 'id',
-    description: 'the place uuid',
+    description: 'the place ObjectId',
     type: 'string',
-    format: 'uuid'
+    format: 'ObjectId'
   })
   @ApiNotFoundResponse({
      description: 'Place not found.' 
@@ -113,9 +113,9 @@ export class PlacesController {
   @HttpCode(200)
   @ApiParam({
     name: 'id',
-    description: 'the place uuid',
+    description: 'the place ObjectId',
     type: 'string',
-    format: 'uuid'
+    format: 'ObjectId'
   })
   @ApiOkResponse({
     description: 'Place updated.',
@@ -135,9 +135,9 @@ export class PlacesController {
   @HttpCode(204)
   @ApiParam({
     name: 'id',
-    description: 'the place uuid',
+    description: 'the place ObjectId',
     type: 'string',
-    format: 'uuid'
+    format: 'ObjectId'
   })
   @ApiNoContentResponse({
     description: 'Place deleted.'

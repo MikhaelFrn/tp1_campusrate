@@ -5,7 +5,7 @@ import { PlaceStatus } from '../../enums/place-state.enum.js';
 
 @Schema({ timestamps: true })
 export class Place extends Document {
-  @Prop({ required: true, trim: true })
+  @Prop({ required: true, trim: true, unique: true })
   name: string;
 
   @Prop({ required: true })
