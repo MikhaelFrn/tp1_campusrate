@@ -6,6 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 import "dotenv/config";
 import { ProblemDetailsFilter } from './common/filters/problem-details.filter.js';
 import helmet from 'helmet';
+import { json } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -32,6 +33,7 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
+  app.use(json({ limit: '1mb' }));
   await app.listen(process.env.PORT ?? 3000);
 }
 await bootstrap();
